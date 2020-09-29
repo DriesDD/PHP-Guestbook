@@ -20,7 +20,7 @@ $_SESSION['namefill'] = '';
 $storyfilename = "story.txt";
 $storyfile = fopen($storyfilename, "r+") or die("Unable to open file!");
 $storycontents = fread($storyfile, 1 + filesize($storyfilename));
-$numberofparts = substr_count($storycontents,'<br>');
+$numberofparts = substr_count($storycontents, '<br>');
 
 
 if (isset($_POST['namefield']) && isset($_POST['storyfield'])) {
@@ -30,6 +30,9 @@ if (isset($_POST['namefield']) && isset($_POST['storyfield'])) {
         $_SESSION['namefill'] = $_POST['namefield'];
         if (validateStory($_POST['storyfield']) === '') {
             echo (validateStory($_POST['storyfield']));
+
+
+
             //add to file
             $date = date('Y-m-d H:i:s');
             $title = 'Part-' . $numberofparts;
@@ -37,12 +40,25 @@ if (isset($_POST['namefield']) && isset($_POST['storyfield'])) {
             fwrite($storyfile, $txt);
             $storycontents = $storycontents . $txt;
             $_SESSION['storyfill'] = 'Thank you for contributing!';
+
+            //log old file when this one is full
+            if ($numberofparts >= 20) {
+                logOldStory($storycontents);
+                file_put_contents("story.txt", "");
+            }
         }
     }
 }
 
 fclose($storyfile);
 
+function logOldStory(string $story)
+{
+    $oldstoryfilename = "oldstories.html";
+    $oldstoryfile = fopen($oldstoryfilename, "r+") or die("Unable to open file!");
+    fwrite($oldstoryfile, $story . '<br>The end.<br><hr>');
+    fclose($oldstoryfile);
+}
 
 function validateStory(string $story): string
 {
@@ -81,7 +97,7 @@ function validateName(string $name): string
     <form action="index.php" method="POST">
         <label for="namefield" maxlength="50">Name:</label><br>
         <input name="namefield" type="text" id="name" value=<?php echo ($_SESSION['namefill']) ?>><br>
-        <label for="storyfield">Part <?php echo ($numberofparts + 1) ?>/20 of the story:</label><br>
+        <label for="storyfield">Part <?php echo ($numberofparts) ?>/20 of the story:</label><br>
         <textarea name="storyfield" maxlength="400" rows="5" cols="20" wrap="soft" id="storyfield" class="storyfield" value=<?php echo ($_SESSION['storyfill']) ?>> </textarea>
         <input type="submit" value="Submit">
     </form>
