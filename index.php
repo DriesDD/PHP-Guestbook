@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>Guestbook</title>
+    <title>Exquisite Corpse</title>
     <link rel="stylesheet" href="https://unpkg.com/mvp.css">
     <link rel="stylesheet" href="stylesheet.css" type="text/css">
 </head>
@@ -99,7 +99,8 @@ return false;
 ?>
 
 <body>
-    <h1>Once upon a time...</h1>
+    <h1>Exquisite Corpse</h1>
+    <h3>Let's write a story together.</h3>
     <article>
         <?php
         echo ($storycontents);
