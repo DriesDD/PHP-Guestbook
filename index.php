@@ -96,10 +96,6 @@ function ContributedLast() : bool
 return false;
 }
 
-echo (GetPersonalHash());
-echo('</br>');
-echo (GetPreviousHash());
-
 ?>
 
 <body>
@@ -108,6 +104,9 @@ echo (GetPreviousHash());
         <?php
         echo ($storycontents);
         ?>
+
+<?php if (ContributedLast()) {echo('<i>You cannot contribute since you made the last contribution.</i>');} ?>
+
     </article>
 
     <form action="index.php" method="POST" <?php if (ContributedLast()) {return 'hidden="true"';} ?>>
@@ -117,6 +116,8 @@ echo (GetPreviousHash());
         <textarea name="storyfield" maxlength="400" rows="5" cols="20" wrap="soft" id="storyfield" class="storyfield" value=<?php echo ($_SESSION['storyfill']) ?>> </textarea>
         <input type="submit" value="Submit">
     </form>
+
+
 
 </body>
 
