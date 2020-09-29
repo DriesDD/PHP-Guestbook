@@ -13,6 +13,7 @@
 require 'profanity.php';
 
 session_start();
+
 $_SESSION['storyfill'] = '';
 $_SESSION['namefill'] = '';
 
@@ -23,16 +24,13 @@ $storycontents = fread($storyfile, 1 + filesize($storyfilename));
 $numberofparts = substr_count($storycontents, '<br>');
 
 
-if (isset($_POST['namefield']) && isset($_POST['storyfield'])) {
+if (isset($_POST['namefield']) && isset($_POST['storyfield']) && (ContributedLast() == false)){
     echo (validateName($_POST['namefield']));
     $_SESSION['storyfill'] = $_POST['storyfield'];
     if (validateName($_POST['namefield'])  === '') {
         $_SESSION['namefill'] = $_POST['namefield'];
         if (validateStory($_POST['storyfield']) === '') {
             echo (validateStory($_POST['storyfield']));
-
-
-
             //add to file
             $date = date('Y-m-d H:i:s');
             $title = 'Part-' . $numberofparts;
@@ -40,7 +38,8 @@ if (isset($_POST['namefield']) && isset($_POST['storyfield'])) {
             fwrite($storyfile, $txt);
             $storycontents = $storycontents . $txt;
             $_SESSION['storyfill'] = 'Thank you for contributing!';
-
+            //save hash to hash file with last contributer hash
+            file_put_contents("hash.txt",GetPersonalHash());
             //log old file when this one is full
             if ($numberofparts >= 20) {
                 logOldStory($storycontents);
@@ -84,6 +83,23 @@ function validateName(string $name): string
     } else return '';
 }
 
+function GetPersonalHash()
+{return hash("sha256",session_id());
+}
+
+function GetPreviousHash()
+{return file_get_contents('hash.txt');
+}
+
+function ContributedLast() : bool
+{if (GetPersonalHash() == GetPreviousHash()) {return true;}
+return false;
+}
+
+echo (GetPersonalHash());
+echo('</br>');
+echo (GetPreviousHash());
+
 ?>
 
 <body>
@@ -94,7 +110,7 @@ function validateName(string $name): string
         ?>
     </article>
 
-    <form action="index.php" method="POST">
+    <form action="index.php" method="POST" <?php if (ContributedLast()) {return 'hidden="true"';} ?>>
         <label for="namefield" maxlength="50">Name:</label><br>
         <input name="namefield" type="text" id="name" value=<?php echo ($_SESSION['namefill']) ?>><br>
         <label for="storyfield">Part <?php echo ($numberofparts) ?>/20 of the story:</label><br>
